@@ -1,0 +1,91 @@
+{% extends 'sentiment/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h2>Processing Your CSV...</h2>
+  <div class="progress" style="height: 30px; margin-top: 20px;">
+    <div id="progress-bar" 
+         class="progress-bar progress-bar-striped progress-bar-animated" 
+         role="progressbar" 
+         style="width: 0%;" 
+         aria-valuenow="0" 
+         aria-valuemin="0" 
+         aria-valuemax="100">
+      0%
+    </div>
+  </div>
+
+  <div id="status-text" style="margin-top: 10px;">
+    Starting...
+  </div>
+</div>
+<div id="eta-text" style="margin-top: 10px;"></div>
+<!-- Exit button to kill task -->
+<button id="home-btn" class="btn btn-secondary" style="margin-top: 10px;">Exit</button>
+
+<script>
+  const taskId = "{{ task_id }}";
+  const progressBar = document.getElementById("progress-bar");
+  const statusText = document.getElementById("status-text");
+  const etaText = document.getElementById("eta-text");
+
+  function updateProgress() {
+    fetch(`/task-status/${taskId}/`)
+      .then(response => response.json())
+      .then(data => {
+        // Update progress bar
+        const progress = data.progress || 0;
+        progressBar.style.width = progress + "%";
+        progressBar.textContent = progress + "%";
+
+        // Update status
+        if (data.status) {
+          statusText.textContent = data.status;
+        }
+
+        // Update ETA if available
+        if (data.eta) {
+          etaText.textContent = "Estimated time remaining: " + data.eta;
+        }
+
+        // Handle task state
+        if (data.state === "SUCCESS") {
+          // Task finished successfully --> redirect to results page
+          window.location.href = "/results/";
+        } else if (data.state === "FAILURE") {
+          // Display error or handle failure case
+          statusText.textContent = "Task failed: " + data.status;
+        } else {
+          // Task still running (PENDING or PROGRESS) --> poll again
+          setTimeout(updateProgress, 2000);
+        }
+      })
+      .catch(err => {
+        console.log("Error fetching progress:", err);
+        // Retry after a delay
+        setTimeout(updateProgress, 2000);
+      });
+  }
+
+  // Start polling right away
+  updateProgress();
+
+  // If user clicks "Exit," confirm whether to kill the task
+  document.getElementById("home-btn").addEventListener("click", function(e) {
+    e.preventDefault();
+    const confirmed = confirm(
+      "A task is still running. Do you really want to exit?\n\n" +
+      "Click 'OK' to terminate the task and return home.\n" +
+      "Click 'Cancel' to stay on this page."
+    );
+    if (confirmed) {
+      window.location.href = "/kill-task/{{ task_id }}/";
+    }
+    // If the user cancels, do nothing—stay on the page
+  });
+</script>
+{% endblock %}
+
+
+

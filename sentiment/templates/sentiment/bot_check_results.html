@@ -1,0 +1,12 @@
+{% extends 'sentiment/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h2>Bot Check Results</h2>
+  <div>
+    {{ table|safe }}
+  </div>
+</div>
+{% endblock %}
+

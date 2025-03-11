@@ -1,0 +1,22 @@
+{% extends 'sentiment/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>Upload CSV for Sentiment Analysis</h2>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Analyze</button>
+    </form>
+    
+    {% if messages %}
+      <ul class="mt-3">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endblock %}
+

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Results</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Sentiment Over Time</h1>
+
+    <h2>Daily & Rolling Average</h2>
+    {{ chart_html|safe }}
+
+    <hr>
+
+    <h2>OLS Trend Analysis</h2>
+    {{ trend_chart_html|safe }}
+
+    <p>This page shows daily average sentiment and a 7-day rolling average, plus 
+       an optional OLS trend line in a second chart. An OLS trend line is a best-fit 
+       straight line that tries to show the general direction of your data. In a time-series, 
+       it can reveal whether sentiment (or any other metric) is drifting upward or downward. 
+       Large day-to-day changes are annotated with arrows labeled Δ=±X.</p>
+</body>
+</html>
