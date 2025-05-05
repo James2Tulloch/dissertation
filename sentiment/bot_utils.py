@@ -9,13 +9,6 @@ def check_bot_account(
     rapidapi_key: str,
     sleep_seconds=1
 ):
-    """
-    Calls the Botometer Pro (RapidAPI) endpoint to check if a Twitter account
-    is a bot. Returns a dict with relevant bot scores or an error message.
-
-    Note: This example calls the "Check Account" (v4) endpoint:
-    https://rapidapi.com/OSoMe/api/botometer-pro/
-    """
     headers = {
         "X-RapidAPI-Key": rapidapi_key,
         "X-RapidAPI-Host": RAPIDAPI_HOST,
@@ -45,9 +38,6 @@ def bulk_check_bot_accounts(
     rapidapi_key: str,
     sleep_seconds=1
 ):
-    """
-    Checks multiple Twitter screen_names. Returns a list of results.
-    """
     results = []
     for name in screen_names:
         result = check_bot_account(name, rapidapi_key, sleep_seconds)

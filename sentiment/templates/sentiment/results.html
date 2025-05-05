@@ -1,24 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sentiment Results</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
-<body>
-    <h1>Sentiment Over Time</h1>
+{% extends 'sentiment/base.html' %}
 
-    <h2>Daily & Rolling Average</h2>
-    {{ chart_html|safe }}
+{% block content %}
 
-    <hr>
+<div class="container mt-5">
+    <h1 class="text-center mb-5">Sentiment Analysis Report</h1>
 
-    <h2>OLS Trend Analysis</h2>
-    {{ trend_chart_html|safe }}
+    <details open class="mb-4 p-3 bg-white rounded shadow-sm">
+        <summary class="h5">Sentiment Over Time</summary>
+        <div id="chart_html">{{ chart_html|safe }}</div>
+        <button class="btn btn-primary mt-2" onclick="downloadPlot('chart_html', 'Sentiment_Over_Time')">Download as PNG</button>
+    </details>
 
-    <p>This page shows daily average sentiment and a 7-day rolling average, plus 
-       an optional OLS trend line in a second chart. An OLS trend line is a best-fit 
-       straight line that tries to show the general direction of your data. In a time-series, 
-       it can reveal whether sentiment (or any other metric) is drifting upward or downward. 
-       Large day-to-day changes are annotated with arrows labeled Δ=±X.</p>
-</body>
-</html>
+    <details class="mb-4 p-3 bg-white rounded shadow-sm">
+        <summary class="h5">OLS Trend Line</summary>
+        <div id="trend_chart_html">{{ trend_chart_html|safe }}</div>
+        <button class="btn btn-primary mt-2" onclick="downloadPlot('trend_chart_html', 'OLS_Trend_Line')">Download as PNG</button>
+    </details>
+
+    <details class="mb-4 p-3 bg-white rounded shadow-sm">
+        <summary class="h5">Sentiment Distribution (Bar Chart)</summary>
+        <div id="bar_chart_html">{{ bar_chart_html|safe }}</div>
+        <button class="btn btn-primary mt-2" onclick="downloadPlot('bar_chart_html', 'Sentiment_Distribution')">Download as PNG</button>
+    </details>
+
+    <details class="mb-4 p-3 bg-white rounded shadow-sm">
+        <summary class="h5">Confidence Score Distribution (Histogram)</summary>
+        <div id="hist_chart_html">{{ hist_chart_html|safe }}</div>
+        <button class="btn btn-primary mt-2" onclick="downloadPlot('hist_chart_html', 'Confidence_Score_Distribution')">Download as PNG</button>
+    </details>
+
+    <h2 class="text-center mt-5 mb-4">Wordclouds</h2>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="bg-white rounded shadow-sm p-3">
+                <h4 class="text-center">Positive Wordcloud</h4>
+                <img src="data:image/png;base64,{{ positive_wordcloud }}" alt="Positive Wordcloud" class="img-fluid rounded">
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="bg-white rounded shadow-sm p-3">
+                <h4 class="text-center">Negative Wordcloud</h4>
+                <img src="data:image/png;base64,{{ negative_wordcloud }}" alt="Negative Wordcloud" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    function downloadPlot(divId, filename) {
+        const plotDiv = document.getElementById(divId).getElementsByClassName('plotly-graph-div')[0];
+        Plotly.downloadImage(plotDiv, {format: 'png', filename: filename});
+    }
+</script>
+
+{% endblock %}

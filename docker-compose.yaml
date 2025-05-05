@@ -1,20 +1,58 @@
 version: '3.8'
+
 services:
   web:
     build: .
     container_name: dissertation_web
     ports:
       - "8000:8000"
-    volumes:
-      - ./precomputed_results.csv:/app/precomputed_results.csv
     depends_on:
+      - db
       - redis
+      - celery
     environment:
-       - CELERY_BROKER_URL=redis://redis:6379/0
-       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - dissertation_net
 
   redis:
     image: redis:latest
     container_name: dissertation_redis
-    ports:
-      - "6379:6379"
+    networks:
+      - dissertation_net
+
+  celery:
+    build: .
+    container_name: dissertation_celery
+    command: celery -A disv2 worker --loglevel=info
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - dissertation_net
+
+  db:
+    image: postgres:13
+    container_name: dissertation_db
+    restart: always
+    environment:
+      POSTGRES_DB: dissertation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dissertation_net
+
+volumes:
+  postgres_data:
+
+networks:
+  dissertation_net:
+
+
+
+

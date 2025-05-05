@@ -1,39 +1,40 @@
-# Use a lightweight Python base image
-FROM python:3.9-slim
+FROM python:3.9
 
-# Create a working directory in the container
+# Set environment
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
 WORKDIR /app
 
-# Copy the entire project into the container
-COPY . /app
-
-# Install system dependencies (if needed for e.g. pandas, matplotlib)
-# You can adjust or remove if your packages need additional system libs
-RUN apt-get update && apt-get install -y \
+# Install system packages (TensorFlow needs these)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     libglib2.0-0 \
     libxml2 \
     libxslt1.1 \
     libjpeg-dev \
     zlib1g-dev \
+    libpq-dev \
     gcc \
- && rm -rf /var/lib/apt/lists/*
+    curl \
+    git \
+    wget \
+    ca-certificates \   
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies in one go (based on your imports):
-RUN pip install --no-cache-dir \
-    celery \
-    django>=3.2 \
-    django-data-browser \
-    matplotlib \
-    numpy \
-    pandas \
-    plotly \
-    requests \
-    transformers \
-    wordcloud \
-    torch 
+# Copy requirements first to take advantage of Docker layer caching
+COPY requirements.txt .
 
-# Expose Django’s default port
+# Install Python dependencies
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Copy rest of the app
+COPY . .
+RUN chmod +x migrations.sh
+# Expose port for dev
 EXPOSE 8000
 
-# By default, run the development server on port 8000
+# Default run
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

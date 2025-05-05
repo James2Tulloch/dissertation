@@ -2,14 +2,13 @@ import time
 import pandas as pd
 from celery import shared_task
 from transformers import pipeline
+import io
+import datetime
 
 SENTIMENT_PIPELINE = pipeline("sentiment-analysis")
 @shared_task(bind=True)
 def run_sentiment_analysis(self, file_data, num_rows):
-    import time
-    import io
-    import pandas as pd
-    from transformers import pipeline
+
 
     SENTIMENT_PIPELINE = pipeline("sentiment-analysis")
 
@@ -41,7 +40,7 @@ def run_sentiment_analysis(self, file_data, num_rows):
         eta_seconds = avg_time_per_row * remaining
 
         # Convert to HH:MM:SS format (optional)
-        import datetime
+    
         eta_formatted = str(datetime.timedelta(seconds=int(eta_seconds)))
 
         # Update Celery state with current progress and ETA

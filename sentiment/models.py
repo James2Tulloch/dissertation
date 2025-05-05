@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+
 
 class CsvRow(models.Model):
     date = models.DateField(null=True, blank=True)
@@ -9,4 +11,3 @@ class CsvRow(models.Model):
     def __str__(self):
         return f"{self.date} - {self.sentiment}"
 
-# Create your models here.
