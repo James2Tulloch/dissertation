@@ -11,10 +11,19 @@ from wordcloud import WordCloud
 import plotly.express as px
 import plotly.graph_objects as go
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
 
-@login_required
+
 def analysis_results(request):
-    csv_path = os.path.join(settings.BASE_DIR, "precomputed_results.csv")
+    if request.method == "POST" and request.FILES.get("csv_file"):
+        uploaded_file: UploadedFile = request.FILES["csv_file"]
+
+
+        temp_path = default_storage.save(f"temp_uploads/{uploaded_file.name}", uploaded_file)
+        csv_path = default_storage.path(temp_path)
+    else:
+  
+        csv_path = os.path.join(settings.BASE_DIR, "precomputed_results.csv")
 
     if not os.path.exists(csv_path):
         return render(request, "sentiment/error.html", {"message": "Results file not found."})
@@ -24,13 +33,28 @@ def analysis_results(request):
     if df.empty:
         return render(request, "sentiment/error.html", {"message": "Results file is empty."})
 
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    timestamp_col = None
+    for col in ['date', 'time']:
+        if col in df.columns:
+            timestamp_col = col
+            break
+
+    if not timestamp_col:
+        return render(request, "sentiment/error.html", {
+            "message": "The uploaded CSV must contain a 'date' or 'time' column."
+        })
+
+
+    df['date'] = pd.to_datetime(df[timestamp_col], errors='coerce')
     df.dropna(subset=['date'], inplace=True)
 
     if df.empty:
-        return render(request, "sentiment/error.html", {"message": "No valid dates found in data."})
+        return render(request, "sentiment/error.html", {
+            "message": f"No valid date/time values found in '{timestamp_col}' column."
+        })
 
-    # Detect sentiment column
+
     if 'Sentiment' in df.columns:
         df['sentiment_score'] = df['Sentiment'].map({'POSITIVE': 1, 'NEGATIVE': 0})
         sentiment_column = 'Sentiment'
@@ -54,7 +78,7 @@ def analysis_results(request):
     if df.empty:
         return render(request, "sentiment/error.html", {"message": "No valid sentiment scores after cleaning."})
 
-    # Group by day
+
     daily_sentiment = (
         df.groupby(df['date'].dt.date)['sentiment_score']
           .mean()
@@ -63,12 +87,12 @@ def analysis_results(request):
     daily_sentiment = daily_sentiment.sort_values('date')
     daily_sentiment['rolling_avg'] = daily_sentiment['avg_sentiment'].rolling(window=7).mean()
 
-    # Detect big day-to-day changes
+
     daily_sentiment['day_diff'] = daily_sentiment['avg_sentiment'].diff()
     threshold = 0.15
     big_shifts = daily_sentiment[abs(daily_sentiment['day_diff']) >= threshold]
 
-    # First figure - Daily sentiment line
+    #Daily sentiment line
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=daily_sentiment['date'],
@@ -126,7 +150,7 @@ def analysis_results(request):
     )
     trend_chart_html = trend_fig.to_html(full_html=False)
 
-    # Sentiment Distribution (Bar Chart)
+    # Sentiment Distribution 
     sentiment_counts = df[sentiment_column].value_counts().reset_index()
     sentiment_counts.columns = ["Sentiment", "Count"]
 

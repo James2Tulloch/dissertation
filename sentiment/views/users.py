@@ -10,6 +10,9 @@ from django.shortcuts import redirect
 
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 # Login HTML page 
@@ -28,8 +31,8 @@ def RegisterView(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)  # log the user in immediately after registration
-            return redirect('upload_file')  # Redirect to upload after signup
+            login(request, user)  
+            return redirect('upload_file')  
     else:
         form = UserCreationForm()
     return render(request, 'sentiment/register.html', {'form': form})

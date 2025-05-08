@@ -19,10 +19,10 @@
   <div id="status-text" style="margin-top: 10px;">
     Starting...
   </div>
+  <div id="eta-text" style="margin-top: 10px;"></div>
+  <button id="home-btn" class="btn btn-secondary" style="margin-top: 10px;">Exit</button>
 </div>
-<div id="eta-text" style="margin-top: 10px;"></div>
-<!-- Exit button to kill task -->
-<button id="home-btn" class="btn btn-secondary" style="margin-top: 10px;">Exit</button>
+
 
 <script>
   const taskId = "{{ task_id }}";
@@ -68,10 +68,10 @@
       });
   }
 
-  // Start polling right away
+
   updateProgress();
 
-  // If user clicks "Exit," confirm whether to kill the task
+
   document.getElementById("home-btn").addEventListener("click", function(e) {
     e.preventDefault();
     const confirmed = confirm(
@@ -82,7 +82,6 @@
     if (confirmed) {
       window.location.href = "/kill-task/{{ task_id }}/";
     }
-    // If the user cancels, do nothing—stay on the page
   });
 </script>
 {% endblock %}

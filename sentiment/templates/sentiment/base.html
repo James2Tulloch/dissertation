@@ -11,7 +11,7 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container">
         <a class="navbar-brand" href="{% url 'upload_file' %}">Home</a>
-        <a class="navbar-brand" href="{% url 'results' %}">Data Analysis</a> 
+        <a class="navbar-brand" href="{% url 'analysis_results' %}">Data Analysis</a> 
         <a class="navbar-brand" href="{% url 'check_accounts' %}">Check for Bot Accounts</a>
         <a class="navbar-brand" href="{% url 'logout' %}">Logout</a>
         <p>Welcome, {{ user.username }}!</p> 

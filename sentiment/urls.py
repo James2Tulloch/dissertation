@@ -12,7 +12,7 @@ urlpatterns = [
     path('progress/<str:task_id>/', show_progress, name='show_progress'),
     path('task-status/<str:task_id>/', task_status, name='task_status'),
     path('kill-task/<str:task_id>/', kill_task, name='kill_task'),
-    path('results/', analysis_results, name='results'),
+    path('results/', analysis_results, name='analysis_results'),
     path('check-accounts/', check_accounts_view, name='check_accounts'),
 
     # User Authentication Views

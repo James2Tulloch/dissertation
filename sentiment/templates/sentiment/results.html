@@ -5,6 +5,13 @@
 <div class="container mt-5">
     <h1 class="text-center mb-5">Sentiment Analysis Report</h1>
 
+    <form method="POST" enctype="multipart/form-data" action="{% url 'analysis_results' %}">
+        {% csrf_token %}
+        <label for="csv_file">Upload Sentiment CSV:</label>
+        <input type="file" name="csv_file" accept=".csv" required>
+        <button type="submit">Analyze</button>
+      </form>
+
     <details open class="mb-4 p-3 bg-white rounded shadow-sm">
         <summary class="h5">Sentiment Over Time</summary>
         <div id="chart_html">{{ chart_html|safe }}</div>
